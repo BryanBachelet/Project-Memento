@@ -12,10 +12,19 @@ namespace Project_Memento
     {
         [SerializeField] private TMP_InputField m_questionInputField;
         [SerializeField] private TMP_InputField m_answerInputField;
+        [SerializeField] private TMP_Text m_errorText;
 
         public void CreateNewQuestion()
         {
-            QuestionManager.CreateQuestion(m_questionInputField.text, m_answerInputField.text);
+            string errorString = "";
+            QuestionManager.CreateQuestion(m_questionInputField.text, m_answerInputField.text, out errorString);
+
+            ShowError(errorString);
+        }
+
+        public void ShowError(string errorText)
+        {
+            m_errorText.text = errorText;
         }
     }
 }

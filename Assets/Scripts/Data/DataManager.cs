@@ -19,6 +19,9 @@ namespace Project_Memento
             questionGlobalData = QuestionManager.CreateQuestionGlobalData();
             questionGlobalData.questionDataDebugActive = questionDebugDataActive;
             questionGlobalData.questionDebugContentActive = questionDebugContentActive;
+
+            SaveManager.LoadData();
+            QuestionManager.ShowQuestionDebug();
         }
 
         public QuestionGlobalData GetQuestionGlobalData() { return questionGlobalData; }
