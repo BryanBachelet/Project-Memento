@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
+
+//Info persistant data path : C:\Users\<user>\AppData\LocalLow\<company name>
+
+
 public class SaveManager : MonoBehaviour
 {
     private const string m_path = "/ApplicationData.json";

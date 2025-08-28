@@ -1,6 +1,7 @@
 
 
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,6 +28,7 @@ namespace Project_Memento
         public string answerImagePath;
         public DateTime dateInitialization;
         public DateTime nextDateTest;
+        public int questionStep;
         public bool isLearningFinish;
 
     }
@@ -41,6 +43,7 @@ namespace Project_Memento
         public string dateInitializationString;
         public string nextDateTest;
         public bool isLearningFinish;
+        public int questionStep;
     }
     public class QuestionGlobalDataSerialize
     {
@@ -114,7 +117,7 @@ namespace Project_Memento
             questionData.dateInitialization = DateTime.Now;
             questionData.nextDateTest = DateTime.Now;
             questionData.nextDateTest.AddDays(1);
-
+            questionData.questionStep = 1;
             if (debugActive)
                 Debug.Log("Question Content: \n Question ID : " + questionData.id + "\n Question Content : " + questionText + " \n Question Answer : " + questionData.answerText);
 
@@ -178,7 +181,9 @@ namespace Project_Memento
             questionDataSerialize.dateInitializationString = questionData.dateInitialization.Date.ToShortDateString(); 
             questionDataSerialize.nextDateTest = questionData.nextDateTest.Date.ToShortDateString();
 
-            questionDataSerialize.isLearningFinish = questionData.isLearningFinish; 
+            questionDataSerialize.isLearningFinish = questionData.isLearningFinish;
+
+            questionDataSerialize.questionStep = questionData.questionStep;
 
             return questionDataSerialize;
         }
@@ -226,11 +231,33 @@ namespace Project_Memento
             questionData.dateInitialization =  DateTime.Parse(questionDataSerialize.dateInitializationString);
             questionData.nextDateTest =  DateTime.Parse(questionDataSerialize.nextDateTest);
 
+            questionData.questionStep = questionDataSerialize.questionStep;
             questionData.isLearningFinish = questionDataSerialize.isLearningFinish;
 
             return questionData;
         }
 
         #endregion
+
+        public static EvaluationData LoadQuestionAtData(DateTime date, QuestionGlobalData questionGlobalData)
+        {
+            EvaluationData evaluationData = new EvaluationData();
+            List<QuestionData> questionData = new List<QuestionData>();
+            for (int i = 0; i < questionGlobalData.questionQuantity; i++)
+            {
+                DateTime nextDate = questionGlobalData.questionData[i].nextDateTest;
+
+                TimeSpan result = nextDate.Date - date.Date ;
+                TimeSpan refValue = new TimeSpan(3,0,0,0);
+                if (result.Days < 0)
+                {
+                    questionData.Add(questionGlobalData.questionData[i]);
+                }
+            }
+
+            evaluationData.questionArray = questionData.ToArray();
+            evaluationData.questionQuantity = questionData.Count;
+            return evaluationData;
+        }
     }
 }
