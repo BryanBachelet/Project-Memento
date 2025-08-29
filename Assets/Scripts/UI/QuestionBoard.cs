@@ -41,6 +41,7 @@ namespace Project_Memento
             {
                 m_questionLineObject[indexQuesitonLine].SetActive(true);
                 QuestionLineUI questionLineUI = m_questionLineObject[indexQuesitonLine].GetComponent<QuestionLineUI>();
+                questionLineUI.SetupQuestionBoard(this);
                 questionLineUI.SetupQuestion(questionDataArray[i]);
                 indexQuesitonLine++;
             }
@@ -78,6 +79,35 @@ namespace Project_Memento
                 questionBoardData.indexQuestion = 0;
                 SetQuestionLines(questionBoardData.indexQuestion);
             }
+        }
+
+        public void DeleteQuestion(int idInstance)
+        {
+            int indexQuestionButton =0 ;
+            for (int i = 0; i < m_questionLineObject.Length; i++)
+            {
+                if(m_questionLineObject[i].GetInstanceID() == idInstance)
+                {
+                    indexQuestionButton = i;
+                    break;
+                }
+            }
+            QuestionBoardData questionBoardData = DataManager.instance.questionBoardData;
+
+           
+            QuestionManager.DeleteQuestion(questionBoardData.indexQuestion + indexQuestionButton);
+            
+            if(questionBoardData.indexQuestion+1 >DataManager.GetQuestionCount() )
+            {
+                DecreaseQuestionBoardIndex();
+            }
+            else
+            {
+                SetQuestionLines(questionBoardData.indexQuestion);
+            }
+
+          
+
         }
     }
 }

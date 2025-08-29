@@ -166,6 +166,25 @@ namespace Project_Memento
             Debug.Log(debugString);
         }
 
+        public static void DeleteQuestion(int idQuestion)
+        {
+           
+            QuestionGlobalData questionGlobalData = DataManager.instance.GetQuestionGlobalData();
+            
+            Debug.Log("Delete the question " + questionGlobalData.questionData[idQuestion].questionText + " with the id " + questionGlobalData.questionData[idQuestion].id.ToString());
+           
+            questionGlobalData.questionQuantity--;
+            questionGlobalData.questionData[idQuestion] = null;
+            for (int i = idQuestion; i < questionGlobalData.questionQuantity; i++)
+            {
+                questionGlobalData.questionData[i] = questionGlobalData.questionData[i + 1];
+                questionGlobalData.questionData[i].id--;
+                questionGlobalData.questionData[i + 1] =null; 
+            }
+
+            SaveManager.SaveData();
+        }
+
         #region Save functions
 
         private static QuestionDataSerialize SerializeQuestionData(QuestionData questionData)

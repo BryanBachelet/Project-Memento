@@ -7,12 +7,19 @@ using System;
 
 namespace Project_Memento
 {
+
+
     public class QuestionLineUI : MonoBehaviour
     {
+        [Header("Reference")]
         [SerializeField] private TMP_Text m_questionText;
         [SerializeField] private TMP_Text m_questionIDText;
         [SerializeField] private TMP_Text m_questionStepText;
         [SerializeField] private TMP_Text m_questionDateText;
+
+        private QuestionBoard m_questionBoard = null;
+
+        public void SetupQuestionBoard(QuestionBoard questionBoard) { m_questionBoard = questionBoard; }
 
         public void SetupQuestion(QuestionData questionData)
         {
@@ -22,11 +29,11 @@ namespace Project_Memento
             m_questionDateText.text = questionData.nextDateTest.ToString("d");
         }
 
-        public void EditQuestion()
+        public void DeleteQuestion()
         {
-
+            m_questionBoard.DeleteQuestion(gameObject.GetInstanceID());
         }
 
-            
+
     }
 }
