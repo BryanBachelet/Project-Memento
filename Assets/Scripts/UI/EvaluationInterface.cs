@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,16 +19,21 @@ namespace Project_Memento
         [SerializeField] private GameObject m_MainMenuObj;
         private static EvaluationInterface instance;
 
-       
+
         public void OnEnable()
         {
             instance = this;
             DataManager.instance.LaunchEvaluation();
-            DisplayQuestion(DataManager.instance.GetCurrentEvaluationQuestion());
+            if (DataManager.instance.evaluationData.questionQuantity != 0)
+            {
+                DisplayQuestion(DataManager.instance.GetCurrentEvaluationQuestion());
 
-            m_validateButton.gameObject.SetActive(false);
-            m_cancelButton.gameObject.SetActive(false);
-            m_answerText.enabled = false;
+                m_validateButton.gameObject.SetActive(false);
+                m_cancelButton.gameObject.SetActive(false);
+                m_answerText.enabled = false;
+            }
+
+
         }
 
         public static void DisplayQuestion(QuestionData questionData)
@@ -39,7 +45,7 @@ namespace Project_Memento
         {
             m_questionText.text = questionData.questionText;
             m_answerInputField.text = "";
-            
+
             m_answerButton.gameObject.SetActive(true);
 
 

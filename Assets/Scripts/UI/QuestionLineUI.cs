@@ -25,7 +25,10 @@ namespace Project_Memento
         {
             m_questionIDText.text = questionData.id.ToString();
             m_questionText.text = questionData.questionText.ToString();
-            m_questionStepText.text = questionData.questionStep.ToString();
+          if(!questionData.isLearningFinish)
+                m_questionStepText.text = questionData.questionStep.ToString();
+          else
+                m_questionStepText.text = "Finish";
             m_questionDateText.text = questionData.nextDateTest.ToString("d");
         }
 

@@ -78,7 +78,7 @@ namespace Project_Memento
     {
 
 
-
+        public static readonly int[] dayStep = { 0, 1, 2, 4, 7, 14, 28 };
         public const int questionQuantityMax = 100;
 
         public static QuestionGlobalData CreateQuestionGlobalData()
@@ -135,9 +135,9 @@ namespace Project_Memento
             questionData.questionText = questionText;
             questionData.answerText = answerText;
             questionData.dateInitialization = DateTime.Now;
+            questionData.questionStep = 0;
             questionData.nextDateTest = DateTime.Now;
-            questionData.nextDateTest.AddDays(1);
-            questionData.questionStep = 1;
+            questionData.nextDateTest = questionData.nextDateTest.AddDays(dayStep[questionData.questionStep]);
             if (debugActive)
                 Debug.Log("Question Content: \n Question ID : " + questionData.id + "\n Question Content : " + questionText + " \n Question Answer : " + questionData.answerText);
 
@@ -231,6 +231,36 @@ namespace Project_Memento
         }
 
 
+        public static void UpdateQuestionDate(int idQuestion)
+        {
+
+            QuestionGlobalData questionGlobalData = DataManager.GetQuestionGlobaldata();
+            QuestionData questionData = questionGlobalData.questionData[idQuestion];
+
+            questionData.questionStep++;
+            if (questionData.questionStep == dayStep.Length)
+            {
+                questionData.isLearningFinish = true;
+            }
+            else
+            {
+                questionData.nextDateTest = questionData.dateInitialization;
+                questionData.nextDateTest = questionData.dateInitialization.AddDays(dayStep[questionData.questionStep]);
+            }
+           
+        }
+    
+
+        public static void ResetQuestion(int idQuestion)
+        {
+            QuestionGlobalData questionGlobalData = DataManager.GetQuestionGlobaldata();
+            QuestionData questionData = questionGlobalData.questionData[idQuestion];
+
+            questionData.questionStep = 0;
+            questionData.dateInitialization = DateTime.Now;
+            questionData.nextDateTest = questionData.dateInitialization.AddDays(dayStep[questionData.questionStep]);
+        }
+
         #region Save functions
 
         private static QuestionDataSerialize SerializeQuestionData(QuestionData questionData)
@@ -310,14 +340,22 @@ namespace Project_Memento
             List<QuestionData> questionData = new List<QuestionData>();
             for (int i = 0; i < questionGlobalData.questionQuantity; i++)
             {
+
+                if (questionGlobalData.questionData[i].isLearningFinish) continue;
+
                 DateTime nextDate = questionGlobalData.questionData[i].nextDateTest;
 
                 TimeSpan result = nextDate.Date - date.Date;
-                TimeSpan refValue = new TimeSpan(3, 0, 0, 0);
-                if (result.Days < 0)
+                TimeSpan refDayLimit = new TimeSpan(-3, 0, 0, 0);
+                if (result.Days < refDayLimit.Days)
+                {
+                    ResetQuestion(i);
+                }
+                if (result.Days <= 0)
                 {
                     questionData.Add(questionGlobalData.questionData[i]);
                 }
+
             }
 
             evaluationData.questionArray = questionData.ToArray();

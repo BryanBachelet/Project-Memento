@@ -51,15 +51,11 @@ namespace Project_Memento
         {
             if (!isSuccessful)
             {
-                questionData.nextDateTest = DateTime.Now;
-                questionData.questionStep = 0;
-                Debug.Log("Thes question is not validate");
+                QuestionManager.ResetQuestion(questionData.id);
             }
             else
             {
-                questionData.nextDateTest = DateTime.Today.AddDays(1);
-                questionData.questionStep++;
-                Debug.Log("Thes question is  validate");
+                QuestionManager.UpdateQuestionDate(questionData.id);
             }
         }
 

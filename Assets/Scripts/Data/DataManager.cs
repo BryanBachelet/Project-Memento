@@ -36,6 +36,7 @@ namespace Project_Memento
 
         public void LaunchEvaluation()
         {
+            evaluationData = EvaluationManager.LoadTodayQuestion();
             if (DataManager.instance.evaluationData.questionQuantity == 0)
             {
                 Debug.Log("PM: No question for today ");
