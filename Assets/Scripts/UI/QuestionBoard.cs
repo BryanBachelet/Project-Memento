@@ -1,6 +1,7 @@
 using Project_Memento;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -17,7 +18,10 @@ namespace Project_Memento
 
     public class QuestionBoard : MonoBehaviour
     {
+        [Header("Reference")]
+        [SerializeField] private GameObject m_questionEditorInterfaceObject;
         [SerializeField] private GameObject[] m_questionLineObject;
+
 
         #region Unity Functions
         public void OnEnable()
@@ -108,6 +112,23 @@ namespace Project_Memento
 
           
 
+        }
+
+        public void EditQuestion(int idGameObjectInstance)
+        {
+            int indexQuestionButton = 0;
+            for (int i = 0; i < m_questionLineObject.Length; i++)
+            {
+                if (m_questionLineObject[i].GetInstanceID() == idGameObjectInstance)
+                {
+                    indexQuestionButton = i;
+                    break;
+                }
+            }
+            QuestionBoardData questionBoardData = DataManager.instance.questionBoardData;
+            questionBoardData.indexQuestionSelect = indexQuestionButton;
+            m_questionEditorInterfaceObject.SetActive(true);
+            this.gameObject.SetActive(false);
         }
     }
 }

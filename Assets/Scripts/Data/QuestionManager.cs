@@ -51,14 +51,33 @@ namespace Project_Memento
         public QuestionDataSerialize[] questionData;
     }
 
+
     public enum QuestionError
     {
         AnswerEmpty = 0,
-        QuestionEmpty =1,
+        QuestionEmpty = 1,
     }
+
+    public struct EditQuestionData
+    {
+        public int idQuestion;
+        public string questionText;
+        public string answerText;
+
+    }
+
+    public struct EditQuestionResult
+    {
+        public bool isSuccess;
+        public string textFeedback;
+    }
+
+
 
     public class QuestionManager
     {
+
+
 
         public const int questionQuantityMax = 100;
 
@@ -70,18 +89,18 @@ namespace Project_Memento
             return questionGlobalData;
         }
 
-        public static void CreateQuestion(string questionText, string answerText, out string errorQuesiton)
+        public static bool CreateQuestion(string questionText, string answerText, out string feedbackQuestionText)
         {
-            if (questionText == null || questionText == string.Empty )
+            if (questionText == null || questionText == string.Empty)
             {
-                errorQuesiton = QuestionError(Project_Memento.QuestionError.QuestionEmpty);
-                return;
+                feedbackQuestionText = QuestionError(Project_Memento.QuestionError.QuestionEmpty);
+                return false;
             }
-               
-            if( answerText == null || answerText == string.Empty)
+
+            if (answerText == null || answerText == string.Empty)
             {
-                errorQuesiton = QuestionError(Project_Memento.QuestionError.AnswerEmpty);
-                return;
+                feedbackQuestionText = QuestionError(Project_Memento.QuestionError.AnswerEmpty);
+                return false;
             }
 
             QuestionGlobalData questionGlobalData = DataManager.instance.GetQuestionGlobalData();
@@ -105,7 +124,8 @@ namespace Project_Memento
             SaveManager.SaveData();
 
             ShowQuestionDebug();
-            errorQuesiton = string.Empty;
+            feedbackQuestionText = "Question sucessfully created";
+            return true;
 
         }
 
@@ -152,7 +172,7 @@ namespace Project_Memento
         {
             QuestionGlobalData questionGlobalData = DataManager.instance.GetQuestionGlobalData();
 
-            if (!questionGlobalData.questionDebugContentActive) 
+            if (!questionGlobalData.questionDebugContentActive)
                 return;
 
             string debugString = "Question Gloabl Content:\n";
@@ -168,22 +188,48 @@ namespace Project_Memento
 
         public static void DeleteQuestion(int idQuestion)
         {
-           
+
             QuestionGlobalData questionGlobalData = DataManager.instance.GetQuestionGlobalData();
-            
+
             Debug.Log("Delete the question " + questionGlobalData.questionData[idQuestion].questionText + " with the id " + questionGlobalData.questionData[idQuestion].id.ToString());
-           
+
             questionGlobalData.questionQuantity--;
             questionGlobalData.questionData[idQuestion] = null;
             for (int i = idQuestion; i < questionGlobalData.questionQuantity; i++)
             {
                 questionGlobalData.questionData[i] = questionGlobalData.questionData[i + 1];
                 questionGlobalData.questionData[i].id--;
-                questionGlobalData.questionData[i + 1] =null; 
+                questionGlobalData.questionData[i + 1] = null;
             }
 
             SaveManager.SaveData();
         }
+
+        public static void EditQuestion(EditQuestionData questionData, out EditQuestionResult resultData)
+        {
+            resultData = new EditQuestionResult();
+            resultData.isSuccess = true;
+            if (questionData.questionText == null || questionData.questionText == string.Empty)
+            {
+                resultData.textFeedback = QuestionError(Project_Memento.QuestionError.QuestionEmpty);
+                resultData.isSuccess = false;
+            }
+
+            if (questionData.answerText == null || questionData.answerText == string.Empty)
+            {
+
+                resultData.textFeedback = QuestionError(Project_Memento.QuestionError.AnswerEmpty);
+                resultData.isSuccess = false;
+            }
+            QuestionGlobalData questionGlobalData = DataManager.instance.GetQuestionGlobalData();
+            QuestionData questionInstanceData = questionGlobalData.questionData[questionData.idQuestion];
+            questionInstanceData.answerText = questionData.answerText;
+            questionInstanceData.questionText = questionData.questionText;
+
+            resultData.textFeedback = "Question sucessfully edited";
+            SaveManager.SaveData();
+        }
+
 
         #region Save functions
 
@@ -193,11 +239,11 @@ namespace Project_Memento
 
             questionDataSerialize.id = questionData.id;
 
-            questionDataSerialize.questionText = questionData.questionText; 
-            questionDataSerialize.answerText = questionData.answerText; 
-            questionDataSerialize.answerImagePath = questionData.answerImagePath; 
+            questionDataSerialize.questionText = questionData.questionText;
+            questionDataSerialize.answerText = questionData.answerText;
+            questionDataSerialize.answerImagePath = questionData.answerImagePath;
 
-            questionDataSerialize.dateInitializationString = questionData.dateInitialization.Date.ToShortDateString(); 
+            questionDataSerialize.dateInitializationString = questionData.dateInitialization.Date.ToShortDateString();
             questionDataSerialize.nextDateTest = questionData.nextDateTest.Date.ToShortDateString();
 
             questionDataSerialize.isLearningFinish = questionData.isLearningFinish;
@@ -206,31 +252,31 @@ namespace Project_Memento
 
             return questionDataSerialize;
         }
-         
+
         public static QuestionGlobalDataSerialize SerializeQuestionGlobalData()
         {
             QuestionGlobalData questionGlobalData = DataManager.instance.GetQuestionGlobalData();
-            QuestionGlobalDataSerialize questionGlobalDataSerialize = new QuestionGlobalDataSerialize();  
-            
-            questionGlobalDataSerialize.questionQuantity = questionGlobalData.questionQuantity; 
+            QuestionGlobalDataSerialize questionGlobalDataSerialize = new QuestionGlobalDataSerialize();
+
+            questionGlobalDataSerialize.questionQuantity = questionGlobalData.questionQuantity;
 
             questionGlobalDataSerialize.questionData = new QuestionDataSerialize[questionGlobalData.questionQuantity];
             for (int i = 0; i < questionGlobalData.questionQuantity; i++)
             {
-                questionGlobalDataSerialize.questionData[i]  = SerializeQuestionData(questionGlobalData.questionData[i]);   
+                questionGlobalDataSerialize.questionData[i] = SerializeQuestionData(questionGlobalData.questionData[i]);
             }
 
-                
+
             return questionGlobalDataSerialize;
         }
 
         public static QuestionGlobalData DeSerializeQuestionGlobalData(QuestionGlobalDataSerialize questionGlobalDataSerialize)
         {
-            QuestionGlobalData questionGlobalData =  DataManager.instance.GetQuestionGlobalData();
+            QuestionGlobalData questionGlobalData = DataManager.instance.GetQuestionGlobalData();
             questionGlobalData.questionQuantity = questionGlobalDataSerialize.questionQuantity;
             questionGlobalData.questionData = new QuestionData[questionGlobalData.questionQuantity];
 
-            for(int i = 0; i < questionGlobalData.questionQuantity;i++)
+            for (int i = 0; i < questionGlobalData.questionQuantity; i++)
             {
                 questionGlobalData.questionData[i] = DeserializeQuestionDataSerialize(questionGlobalDataSerialize.questionData[i]);
             }
@@ -247,8 +293,8 @@ namespace Project_Memento
             questionData.answerText = questionDataSerialize.answerText;
             questionData.answerImagePath = questionDataSerialize.answerImagePath;
 
-            questionData.dateInitialization =  DateTime.Parse(questionDataSerialize.dateInitializationString);
-            questionData.nextDateTest =  DateTime.Parse(questionDataSerialize.nextDateTest);
+            questionData.dateInitialization = DateTime.Parse(questionDataSerialize.dateInitializationString);
+            questionData.nextDateTest = DateTime.Parse(questionDataSerialize.nextDateTest);
 
             questionData.questionStep = questionDataSerialize.questionStep;
             questionData.isLearningFinish = questionDataSerialize.isLearningFinish;
@@ -266,8 +312,8 @@ namespace Project_Memento
             {
                 DateTime nextDate = questionGlobalData.questionData[i].nextDateTest;
 
-                TimeSpan result = nextDate.Date - date.Date ;
-                TimeSpan refValue = new TimeSpan(3,0,0,0);
+                TimeSpan result = nextDate.Date - date.Date;
+                TimeSpan refValue = new TimeSpan(3, 0, 0, 0);
                 if (result.Days < 0)
                 {
                     questionData.Add(questionGlobalData.questionData[i]);

@@ -69,6 +69,9 @@ namespace Project_Memento
         public QuestionGlobalData GetQuestionGlobalData() { return questionGlobalData; }
         public QuestionData GetCurrentEvaluationQuestion() { return m_currentQuestionData; }
 
+        public  static QuestionGlobalData GetQuestionGlobaldata() { return instance.questionGlobalData; }
+        public static QuestionData GetQuestionData(int idQuestion) {  return instance.questionGlobalData.questionData[idQuestion]; }
+
         public static int GetQuestionCount() { return instance.questionGlobalData.questionQuantity; }
     }
 }

@@ -34,6 +34,11 @@ namespace Project_Memento
             m_questionBoard.DeleteQuestion(gameObject.GetInstanceID());
         }
 
+        public void EditQuestion()
+        {
+            m_questionBoard.EditQuestion(gameObject.GetInstanceID());
+        }
+
 
     }
 }
