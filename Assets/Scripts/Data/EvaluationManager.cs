@@ -15,6 +15,8 @@ namespace Project_Memento
     public class SpecificEvaluationData
     {
         public List<QuestionData> questionList;
+        public int goodAnswerSession;
+        public int totalQuestion;
     }
 
 
@@ -30,7 +32,7 @@ namespace Project_Memento
         {
             SpecificEvaluationData specificEvaluationData = new SpecificEvaluationData();
             specificEvaluationData.questionList = new List<QuestionData>(evaluationData.questionArray);
-
+            specificEvaluationData.totalQuestion = specificEvaluationData.questionList.Count;
             return specificEvaluationData;
         }
 
@@ -47,14 +49,18 @@ namespace Project_Memento
 
         }
 
-        public static void UpdateQuestion(QuestionData questionData, bool isSuccessful)
+      
+
+        public static void UpdateQuestion(QuestionData questionData, bool isSuccessful, SpecificEvaluationData specificEvaluationData)
         {
             if (!isSuccessful)
             {
+                
                 QuestionManager.ResetQuestion(questionData.id);
             }
             else
             {
+                specificEvaluationData.goodAnswerSession++;
                 QuestionManager.UpdateQuestionDate(questionData.id);
             }
         }
@@ -64,9 +70,9 @@ namespace Project_Memento
             return specificEvaluationData.questionList.Count == 0;
         }
 
-        public static void FinishEvaluation()
+        public static void FinishEvaluation(EndScreenInterface.EndScreenData endScreenData)
         {
-            EvaluationInterface.CloseEvaluationInterface();
+            EvaluationInterface.CloseEvaluationInterface(endScreenData);
         }
     }
 }

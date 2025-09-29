@@ -13,6 +13,7 @@ namespace Project_Memento
         [Header("Reference")]
         [SerializeField] private TMP_InputField m_questionInputField;
         [SerializeField] private TMP_InputField m_answerInputField;
+        [SerializeField] private TMP_InputField m_questionInformationInputField;
         [SerializeField] private TMP_Text m_errorText;
 
         [Header("Color Feedback")]
@@ -30,6 +31,7 @@ namespace Project_Memento
             QuestionData questionData = DataManager.GetQuestionData(DataManager.instance.questionBoardData.indexQuestionSelect);
             m_questionInputField.text = questionData.questionText;
             m_answerInputField.text = questionData.answerText;
+            m_questionInformationInputField.text = questionData.question_Information;
         }
         #endregion
 
@@ -39,6 +41,7 @@ namespace Project_Memento
             editQuestionData.idQuestion = DataManager.instance.questionBoardData.indexQuestionSelect;
             editQuestionData.answerText = m_answerInputField.text;
             editQuestionData.questionText = m_questionInputField.text;
+            editQuestionData.questionInformation = m_questionInformationInputField.text;
 
             EditQuestionResult editQuestionResult = new EditQuestionResult();
             QuestionManager.EditQuestion(editQuestionData, out editQuestionResult);
@@ -59,6 +62,7 @@ namespace Project_Memento
             QuestionData questionData = DataManager.GetQuestionData(DataManager.instance.questionBoardData.indexQuestionSelect);
             m_questionInputField.text = questionData.questionText;
             m_answerInputField.text = questionData.answerText;
+            m_questionInformationInputField.text = questionData.question_Information;
         }
 
         public void ShowError(string errorText)

@@ -15,8 +15,20 @@ namespace Project_Memento
         [SerializeField] private Image m_answerButton;
         [SerializeField] private Image m_validateButton;
         [SerializeField] private Image m_cancelButton;
-        [SerializeField] private GameObject m_EvaluationObj;
-        [SerializeField] private GameObject m_MainMenuObj;
+        [SerializeField] private GameObject m_evaluationObj;
+        [SerializeField] private GameObject m_endScreenObj;
+
+        [Header("Question Information Reference")]
+        public GameObject m_questionInfoTitle;
+        public GameObject m_questionInfoScrollView;
+        public TMP_Text m_questionInfoText;
+
+        [Header("Step Question Variables")]
+        [SerializeField] private TMP_Text m_stepText;
+        [SerializeField] private string m_stepLegendText;
+
+
+
         private static EvaluationInterface instance;
 
 
@@ -47,11 +59,14 @@ namespace Project_Memento
             m_answerInputField.text = "";
 
             m_answerButton.gameObject.SetActive(true);
-
+            m_stepText.text = $"{m_stepLegendText} : {questionData.questionStep +1 } / 8";
 
             m_answerText.enabled = false;
             m_validateButton.gameObject.SetActive(false);
             m_cancelButton.gameObject.SetActive(false);
+
+            m_questionInfoTitle.SetActive(false);
+            m_questionInfoScrollView.SetActive(false);
         }
 
         public void DisplayAnswer(QuestionData questionData)
@@ -62,6 +77,10 @@ namespace Project_Memento
 
             m_answerText.enabled = true;
             m_answerText.text = questionData.answerText;
+
+            m_questionInfoTitle.SetActive(true);
+            m_questionInfoScrollView.SetActive(true);
+            m_questionInfoText.text = questionData.question_Information;
         }
 
         public void ValidateAnswer()
@@ -71,21 +90,28 @@ namespace Project_Memento
 
         public void IsAnswerCorrect(bool isCorrect)
         {
-            EvaluationManager.UpdateQuestion(DataManager.instance.GetCurrentEvaluationQuestion(), isCorrect);
+            EvaluationManager.UpdateQuestion(DataManager.instance.GetCurrentEvaluationQuestion(), isCorrect, DataManager.instance.specificEvaluationData);
             DataManager.instance.GetNewQuestion();
         }
 
 
-        public static void CloseEvaluationInterface()
+        public static void CloseEvaluationInterface(EndScreenInterface.EndScreenData endScreenData)
         {
-            instance.ReturnToMenu();
+            instance.GoodEndScreen(endScreenData);
         }
 
 
-        public void ReturnToMenu()
+        public void GoodEndScreen(EndScreenInterface.EndScreenData endScreenData)
         {
-            m_EvaluationObj.SetActive(false);
-            m_MainMenuObj.SetActive(true);
+            m_evaluationObj.SetActive(false);
+            m_endScreenObj.SetActive(true);
+
+            EndScreenInterface endScreenInterface = m_endScreenObj.GetComponent<EndScreenInterface>();  
+            if (endScreenInterface)
+            {
+
+                endScreenInterface.SetupEndScren(endScreenData);
+            }
         }
 
 

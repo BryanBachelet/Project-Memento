@@ -62,7 +62,12 @@ namespace Project_Memento
         public void FinishEvaluation()
         {
             Debug.Log("Finish Evaluation ");
-            EvaluationManager.FinishEvaluation();
+
+            EndScreenInterface.EndScreenData endScreenData = new EndScreenInterface.EndScreenData();
+            endScreenData.totalQuestion = specificEvaluationData.totalQuestion;
+            endScreenData.goodAnswer = specificEvaluationData.goodAnswerSession;
+
+            EvaluationManager.FinishEvaluation(endScreenData);
             SaveManager.SaveData();
         }
 

@@ -13,6 +13,7 @@ namespace Project_Memento
         [Header("Reference")]
         [SerializeField] private TMP_InputField m_questionInputField;
         [SerializeField] private TMP_InputField m_answerInputField;
+        [SerializeField] private TMP_InputField m_questionInformationInputField;
         [SerializeField] private TMP_Text m_errorText;
 
         [Header("Color Feedback")]
@@ -26,7 +27,7 @@ namespace Project_Memento
         public void CreateNewQuestion()
         {
             string feedbackString = "";
-           bool isCreate = QuestionManager.CreateQuestion(m_questionInputField.text, m_answerInputField.text, out feedbackString);
+           bool isCreate = QuestionManager.CreateQuestion(m_questionInputField.text, m_answerInputField.text, m_questionInformationInputField.text, out feedbackString);
 
             if (!isCreate)
                 ShowError(feedbackString);
@@ -34,6 +35,7 @@ namespace Project_Memento
             {
                 m_questionInputField.text = "";
                 m_answerInputField.text = "";
+                m_questionInformationInputField.text = "";
                 ShowValidFeedback(feedbackString);
             }
         }

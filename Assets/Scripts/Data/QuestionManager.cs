@@ -30,6 +30,8 @@ namespace Project_Memento
         public DateTime nextDateTest;
         public int questionStep;
         public bool isLearningFinish;
+        public string question_Information;
+        public string[] tagQuestion;
 
     }
 
@@ -44,6 +46,8 @@ namespace Project_Memento
         public string nextDateTest;
         public bool isLearningFinish;
         public int questionStep;
+        public string question_Information;
+        public string[] tagQuestion;
     }
     public class QuestionGlobalDataSerialize
     {
@@ -63,6 +67,7 @@ namespace Project_Memento
         public int idQuestion;
         public string questionText;
         public string answerText;
+        public string questionInformation;
 
     }
 
@@ -89,7 +94,7 @@ namespace Project_Memento
             return questionGlobalData;
         }
 
-        public static bool CreateQuestion(string questionText, string answerText, out string feedbackQuestionText)
+        public static bool CreateQuestion(string questionText, string answerText,string questionInfo, out string feedbackQuestionText)
         {
             if (questionText == null || questionText == string.Empty)
             {
@@ -104,7 +109,7 @@ namespace Project_Memento
             }
 
             QuestionGlobalData questionGlobalData = DataManager.instance.GetQuestionGlobalData();
-            QuestionData questionData = InitializeQuestion(questionText, answerText, questionGlobalData.questionDebugContentActive);
+            QuestionData questionData = InitializeQuestion(questionText, answerText,questionInfo, questionGlobalData.questionDebugContentActive);
 
             questionData.id = questionGlobalData.questionQuantity;
             questionGlobalData.questionQuantity++;
@@ -129,13 +134,14 @@ namespace Project_Memento
 
         }
 
-        private static QuestionData InitializeQuestion(string questionText, string answerText, bool debugActive)
+        private static QuestionData InitializeQuestion(string questionText, string answerText, string questionInfo, bool debugActive)
         {
             QuestionData questionData = new QuestionData();
             questionData.questionText = questionText;
             questionData.answerText = answerText;
             questionData.dateInitialization = DateTime.Now;
             questionData.questionStep = 0;
+            questionData.question_Information = questionInfo;
             questionData.nextDateTest = DateTime.Now;
             questionData.nextDateTest = questionData.nextDateTest.AddDays(dayStep[questionData.questionStep]);
             if (debugActive)
@@ -221,10 +227,12 @@ namespace Project_Memento
                 resultData.textFeedback = QuestionError(Project_Memento.QuestionError.AnswerEmpty);
                 resultData.isSuccess = false;
             }
+
             QuestionGlobalData questionGlobalData = DataManager.instance.GetQuestionGlobalData();
             QuestionData questionInstanceData = questionGlobalData.questionData[questionData.idQuestion];
             questionInstanceData.answerText = questionData.answerText;
             questionInstanceData.questionText = questionData.questionText;
+            questionInstanceData.question_Information = questionData.questionInformation;
 
             resultData.textFeedback = "Question sucessfully edited";
             SaveManager.SaveData();
@@ -279,6 +287,9 @@ namespace Project_Memento
             questionDataSerialize.isLearningFinish = questionData.isLearningFinish;
 
             questionDataSerialize.questionStep = questionData.questionStep;
+            questionDataSerialize.question_Information = questionData.question_Information;
+
+            questionDataSerialize.tagQuestion = questionData.tagQuestion;
 
             return questionDataSerialize;
         }
@@ -328,6 +339,9 @@ namespace Project_Memento
 
             questionData.questionStep = questionDataSerialize.questionStep;
             questionData.isLearningFinish = questionDataSerialize.isLearningFinish;
+            questionData.question_Information = questionDataSerialize.question_Information;
+
+            questionData.tagQuestion = questionDataSerialize.tagQuestion;
 
             return questionData;
         }
