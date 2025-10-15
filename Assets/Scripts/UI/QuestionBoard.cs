@@ -1,9 +1,7 @@
-using Project_Memento;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
+using SFB;
 using UnityEngine;
-
+using BorsalinoTools;
+using System.Runtime.CompilerServices;
 
 
 namespace Project_Memento
@@ -41,7 +39,7 @@ namespace Project_Memento
         {
             QuestionData[] questionDataArray = DataManager.instance.questionGlobalData.questionData;
             int indexQuesitonLine = 0;
-            for ( int i = indexStart; i < DataManager.instance.questionGlobalData.questionQuantity && indexQuesitonLine < m_questionLineObject.Length; i++)
+            for (int i = indexStart; i < DataManager.instance.questionGlobalData.questionQuantity && indexQuesitonLine < m_questionLineObject.Length; i++)
             {
                 m_questionLineObject[indexQuesitonLine].SetActive(true);
                 QuestionLineUI questionLineUI = m_questionLineObject[indexQuesitonLine].GetComponent<QuestionLineUI>();
@@ -51,7 +49,7 @@ namespace Project_Memento
             }
             if (indexQuesitonLine < m_questionLineObject.Length)
             {
-                for (int i  = indexQuesitonLine; i < m_questionLineObject.Length; i++)
+                for (int i = indexQuesitonLine; i < m_questionLineObject.Length; i++)
                 {
                     m_questionLineObject[i].SetActive(false);
                 }
@@ -61,7 +59,7 @@ namespace Project_Memento
         public void IncreaseQuestionBoardIndex()
         {
             QuestionBoardData questionBoardData = DataManager.instance.questionBoardData;
-            
+
             if (questionBoardData.indexQuestion + m_questionLineObject.Length < DataManager.GetQuestionCount())
             {
                 questionBoardData.indexQuestion += m_questionLineObject.Length;
@@ -87,10 +85,10 @@ namespace Project_Memento
 
         public void DeleteQuestion(int idInstance)
         {
-            int indexQuestionButton =0 ;
+            int indexQuestionButton = 0;
             for (int i = 0; i < m_questionLineObject.Length; i++)
             {
-                if(m_questionLineObject[i].GetInstanceID() == idInstance)
+                if (m_questionLineObject[i].GetInstanceID() == idInstance)
                 {
                     indexQuestionButton = i;
                     break;
@@ -98,10 +96,10 @@ namespace Project_Memento
             }
             QuestionBoardData questionBoardData = DataManager.instance.questionBoardData;
 
-           
+
             QuestionManager.DeleteQuestion(questionBoardData.indexQuestion + indexQuestionButton);
-            
-            if(questionBoardData.indexQuestion+1 >DataManager.GetQuestionCount() )
+
+            if (questionBoardData.indexQuestion + 1 > DataManager.GetQuestionCount())
             {
                 DecreaseQuestionBoardIndex();
             }
@@ -110,7 +108,7 @@ namespace Project_Memento
                 SetQuestionLines(questionBoardData.indexQuestion);
             }
 
-          
+
 
         }
 
@@ -130,5 +128,38 @@ namespace Project_Memento
             m_questionEditorInterfaceObject.SetActive(true);
             this.gameObject.SetActive(false);
         }
+
+        public void GetFileCSV()
+        {
+            var paths = StandaloneFileBrowser.OpenFilePanel("Get CSV", Application.dataPath, "csv", false);
+
+            if (paths[0] == string.Empty) return;
+
+
+            CsvMetaInfo csvMetaInfo = new CsvMetaInfo();
+            csvMetaInfo.sepearator = ',';
+            csvMetaInfo.hasColumnName = false;
+            csvMetaInfo.hasRowNames = false;
+            csvMetaInfo.hasId = false;
+            csvMetaInfo.path = paths[0];
+
+            CsvInfo csvInfo = CsvTools.ReadCSVFile(csvMetaInfo);
+            string[] questionValues = CsvTools.GetColumnValue(0, csvInfo);
+            string[] answerValues = CsvTools.GetColumnValue(1, csvInfo);
+            
+            int minSize = Mathf.Min(answerValues.Length, questionValues.Length);
+            if (minSize == 0) return;
+
+            for (int i = 0; i < minSize; i++)
+            {
+
+                string feedback = "";
+                QuestionManager.CreateQuestion(questionValues[i], answerValues[i], "", out feedback);
+            }
+
+
+        }
+
+
     }
 }
