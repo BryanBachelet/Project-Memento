@@ -31,6 +31,7 @@ namespace Project_Memento
         public int questionStep;
         public bool isLearningFinish;
         public string question_Information;
+        public int tagQuantity;
         public string[] tagQuestion;
 
     }
@@ -48,6 +49,7 @@ namespace Project_Memento
         public int questionStep;
         public string question_Information;
         public string[] tagQuestion;
+        public int tagQuantity;
     }
     public class QuestionGlobalDataSerialize
     {
@@ -68,6 +70,7 @@ namespace Project_Memento
         public string questionText;
         public string answerText;
         public string questionInformation;
+        public string tagQuestion;
 
     }
 
@@ -238,8 +241,64 @@ namespace Project_Memento
             SaveManager.SaveData();
         }
 
+        public static void AddTagQuestion(EditQuestionData questionData, out EditQuestionResult resultData)
+        {
+            resultData = new EditQuestionResult();
+            resultData.isSuccess = true;
 
-        public static void UpdateQuestionDate(int idQuestion)
+            QuestionGlobalData questionGlobalData = DataManager.instance.GetQuestionGlobalData();
+            QuestionData questionInstanceData = questionGlobalData.questionData[questionData.idQuestion];
+
+            if(questionInstanceData.tagQuestion==null)
+                questionInstanceData.tagQuestion = new string[5];
+
+            if (questionInstanceData.tagQuantity == questionInstanceData.tagQuestion.Length)
+            {
+                string[] tempArray = questionInstanceData.tagQuestion;
+                questionInstanceData.tagQuestion = new string[questionInstanceData.tagQuantity + 5];
+                Array.Copy(tempArray, questionInstanceData.tagQuestion, questionInstanceData.tagQuantity + 5);
+                questionInstanceData.tagQuestion[questionInstanceData.tagQuantity] = questionData.tagQuestion;
+                questionInstanceData.tagQuantity++;
+            }
+            else
+            {
+                questionInstanceData.tagQuestion[questionInstanceData.tagQuantity] = questionData.tagQuestion;
+                questionInstanceData.tagQuantity++;
+            }
+
+            resultData.textFeedback = "Tag was succesffully edited";
+            SaveManager.SaveData();
+
+        }
+
+        public static void RemoveTagQuestion(int idQuestion, string nameTag, out EditQuestionResult resultData)
+        {
+            resultData = new EditQuestionResult();
+            resultData.isSuccess = true;
+
+            QuestionGlobalData questionGlobalData = DataManager.instance.GetQuestionGlobalData();
+            QuestionData questionInstanceData = questionGlobalData.questionData[idQuestion];
+
+            for (int i = 0; i < questionInstanceData.tagQuantity; i++)
+            {
+                if (questionInstanceData.tagQuestion[i] == nameTag)
+                {
+                    List<string> tempArray = new List<string>( questionInstanceData.tagQuestion);
+                    tempArray.Remove(questionInstanceData.tagQuestion[i]);
+                    questionInstanceData.tagQuestion = tempArray.ToArray();
+                    questionInstanceData.tagQuantity--;
+
+                    resultData.textFeedback = "Tag was succesffully remove";
+                    SaveManager.SaveData();
+                }
+            }
+            resultData.isSuccess= false;
+            resultData.textFeedback = "Tag wasnt find and remove";
+
+        }
+
+
+    public static void UpdateQuestionDate(int idQuestion)
         {
 
             QuestionGlobalData questionGlobalData = DataManager.GetQuestionGlobaldata();
@@ -290,6 +349,7 @@ namespace Project_Memento
             questionDataSerialize.question_Information = questionData.question_Information;
 
             questionDataSerialize.tagQuestion = questionData.tagQuestion;
+            questionDataSerialize.tagQuantity = questionData.tagQuantity;
 
             return questionDataSerialize;
         }
@@ -342,6 +402,7 @@ namespace Project_Memento
             questionData.question_Information = questionDataSerialize.question_Information;
 
             questionData.tagQuestion = questionDataSerialize.tagQuestion;
+            questionData.tagQuantity = questionDataSerialize.tagQuantity;
 
             return questionData;
         }

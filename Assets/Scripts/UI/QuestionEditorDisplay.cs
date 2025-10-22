@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Project_Memento
 {
@@ -15,6 +14,9 @@ namespace Project_Memento
         [SerializeField] private TMP_InputField m_answerInputField;
         [SerializeField] private TMP_InputField m_questionInformationInputField;
         [SerializeField] private TMP_Text m_errorText;
+        [SerializeField] private TMP_Dropdown m_tagDropdown;
+        [SerializeField] private TMP_Text m_tagListText;
+        [SerializeField] private TMP_InputField m_tagInputField;
 
         [Header("Color Feedback")]
         [SerializeField] private Color m_colorError = Color.white;
@@ -23,7 +25,7 @@ namespace Project_Memento
         private Coroutine m_feedbackCoroutine;
         private const int m_duractionFeedback = 2;
 
-
+        private List<TagsData> questionTags = new List<TagsData>();
 
         #region Unity Function
         public void OnEnable()
@@ -32,8 +34,26 @@ namespace Project_Memento
             m_questionInputField.text = questionData.questionText;
             m_answerInputField.text = questionData.answerText;
             m_questionInformationInputField.text = questionData.question_Information;
+
+            UpdateTagDisplay(questionData);
+
+
+            m_tagDropdown.ClearOptions();
+            m_tagDropdown.AddOptions(DataManager.GetTagsList());
         }
         #endregion
+
+
+        private void UpdateTagDisplay(QuestionData questionData)
+        {
+            m_tagListText.text = "";
+
+
+            for (int i = 0; i < questionData.tagQuantity; i++)
+            {
+                m_tagListText.text += questionData.tagQuestion[i] + '\n';
+            }
+        }
 
         public void ValideChangeQuestion()
         {
@@ -54,6 +74,7 @@ namespace Project_Memento
             {
                 ShowError(editQuestionResult.textFeedback);
             }
+           
 
         }
 
@@ -88,6 +109,64 @@ namespace Project_Memento
             m_errorText.color = isError ? m_colorError : m_colorGoodFeedback;
             yield return new WaitForSeconds(m_duractionFeedback);
             m_errorText.text = "";
+        }
+
+        public void AddTag()
+        {
+            Tag tagToAdd = DataManager.GetTagData(m_tagDropdown.value);
+
+            EditQuestionData editQuestionData = new EditQuestionData();
+            editQuestionData.idQuestion = DataManager.instance.questionBoardData.indexQuestionSelect;
+            editQuestionData.tagQuestion = tagToAdd.name;
+
+            EditQuestionResult editQuestionResult = new EditQuestionResult();
+
+            QuestionManager.AddTagQuestion(editQuestionData, out editQuestionResult);
+
+            if (editQuestionResult.isSuccess)
+            {
+                ShowValidFeedback(editQuestionResult.textFeedback);
+            }
+            else
+            {
+                ShowError(editQuestionResult.textFeedback);
+            }
+
+
+            QuestionData questionData = DataManager.GetQuestionData(DataManager.instance.questionBoardData.indexQuestionSelect);
+            UpdateTagDisplay(questionData);
+        }
+
+        public void RemoveTag()
+        {
+            Tag tagToAdd = DataManager.GetTagData(m_tagDropdown.value);
+
+            int idQuestion = DataManager.instance.questionBoardData.indexQuestionSelect;
+
+            EditQuestionResult editQuestionResult = new EditQuestionResult();
+
+            QuestionManager.RemoveTagQuestion(idQuestion, tagToAdd.name, out editQuestionResult);
+
+            if (editQuestionResult.isSuccess)
+            {
+                ShowValidFeedback(editQuestionResult.textFeedback);
+            }
+            else
+            {
+                ShowError(editQuestionResult.textFeedback);
+            }
+
+            QuestionData questionData = DataManager.GetQuestionData(DataManager.instance.questionBoardData.indexQuestionSelect);
+            UpdateTagDisplay(questionData);
+        }
+
+
+        public void CreateTag()
+        {
+            DataManager.CreateTag(m_tagInputField.text, Color.white);
+
+            m_tagDropdown.ClearOptions();
+            m_tagDropdown.AddOptions(DataManager.GetTagsList());
         }
     }
 
