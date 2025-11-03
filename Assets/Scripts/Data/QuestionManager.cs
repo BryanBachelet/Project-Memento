@@ -87,6 +87,7 @@ namespace Project_Memento
 
 
         public static readonly int[] dayStep = { 0, 1, 2, 4, 7, 14, 28 };
+        private  const int maxQuestionEvaluation = 10;
         public const int questionQuantityMax = 100;
 
         public static QuestionGlobalData CreateQuestionGlobalData()
@@ -412,8 +413,8 @@ namespace Project_Memento
         public static EvaluationData LoadQuestionAtData(DateTime date, QuestionGlobalData questionGlobalData)
         {
             EvaluationData evaluationData = new EvaluationData();
-            List<QuestionData> questionData = new List<QuestionData>();
-            for (int i = 0; i < questionGlobalData.questionQuantity; i++)
+            List<QuestionData> questionDataList = new List<QuestionData>();
+            for (int i = 0; i < questionGlobalData.questionQuantity && questionDataList.Count < maxQuestionEvaluation; i++)
             {
 
                 if (questionGlobalData.questionData[i].isLearningFinish) continue;
@@ -428,13 +429,13 @@ namespace Project_Memento
                 }
                 if (result.Days <= 0)
                 {
-                    questionData.Add(questionGlobalData.questionData[i]);
+                    questionDataList.Add(questionGlobalData.questionData[i]);
                 }
 
             }
 
-            evaluationData.questionArray = questionData.ToArray();
-            evaluationData.questionQuantity = questionData.Count;
+            evaluationData.questionArray = questionDataList.ToArray();
+            evaluationData.questionQuantity = questionDataList.Count;
             return evaluationData;
         }
     }
