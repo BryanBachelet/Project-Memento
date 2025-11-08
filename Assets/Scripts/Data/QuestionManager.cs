@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -414,12 +415,19 @@ namespace Project_Memento
         {
             EvaluationData evaluationData = new EvaluationData();
             List<QuestionData> questionDataList = new List<QuestionData>();
-            for (int i = 0; i < questionGlobalData.questionQuantity && questionDataList.Count < maxQuestionEvaluation; i++)
+            
+            List<QuestionData> orderingList = new List<QuestionData>(questionGlobalData.questionData);
+
+            orderingList[1].questionStep = 1;
+
+            orderingList = orderingList.OrderByDescending(question => question.questionStep).ToList();
+
+            for (int i = 0; i < questionGlobalData.questionQuantity && questionDataList.Count <= maxQuestionEvaluation; i++)
             {
 
-                if (questionGlobalData.questionData[i].isLearningFinish) continue;
+                if (orderingList[i].isLearningFinish) continue;
 
-                DateTime nextDate = questionGlobalData.questionData[i].nextDateTest;
+                DateTime nextDate = orderingList[i].nextDateTest;
 
                 TimeSpan result = nextDate.Date - date.Date;
                 TimeSpan refDayLimit = new TimeSpan(-3, 0, 0, 0);
@@ -429,7 +437,7 @@ namespace Project_Memento
                 }
                 if (result.Days <= 0)
                 {
-                    questionDataList.Add(questionGlobalData.questionData[i]);
+                    questionDataList.Add(orderingList[i]);
                 }
 
             }
