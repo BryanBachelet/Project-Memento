@@ -159,7 +159,11 @@ namespace Project_Memento
 
 
         }
-
+        
+        public void RemoveDuplicateQuestion()
+        {
+            QuestionManager.DeleteDuplicateQuestion();
+        }
 
     }
 }

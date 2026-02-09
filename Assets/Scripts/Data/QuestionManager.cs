@@ -63,6 +63,7 @@ namespace Project_Memento
     {
         AnswerEmpty = 0,
         QuestionEmpty = 1,
+        QuestionExistingAlready = 2,
     }
 
     public struct EditQuestionData
@@ -88,7 +89,7 @@ namespace Project_Memento
 
 
         public static readonly int[] dayStep = { 0, 1, 2, 4, 7, 14, 28 };
-        private  const int maxQuestionEvaluation = 10;
+        private const int maxQuestionEvaluation = 10;
         public const int questionQuantityMax = 100;
 
         public static QuestionGlobalData CreateQuestionGlobalData()
@@ -99,7 +100,7 @@ namespace Project_Memento
             return questionGlobalData;
         }
 
-        public static bool CreateQuestion(string questionText, string answerText,string questionInfo, out string feedbackQuestionText)
+        public static bool CreateQuestion(string questionText, string answerText, string questionInfo, out string feedbackQuestionText)
         {
             if (questionText == null || questionText == string.Empty)
             {
@@ -113,8 +114,17 @@ namespace Project_Memento
                 return false;
             }
 
+            if (IsThisQuestionExisting(questionText))
+            {
+                feedbackQuestionText = QuestionError(Project_Memento.QuestionError.QuestionExistingAlready);
+                return false;
+            }
+
+
             QuestionGlobalData questionGlobalData = DataManager.instance.GetQuestionGlobalData();
-            QuestionData questionData = InitializeQuestion(questionText, answerText,questionInfo, questionGlobalData.questionDebugContentActive);
+            QuestionData questionData = InitializeQuestion(questionText, answerText, questionInfo, questionGlobalData.questionDebugContentActive);
+
+
 
             questionData.id = questionGlobalData.questionQuantity;
             questionGlobalData.questionQuantity++;
@@ -172,6 +182,11 @@ namespace Project_Memento
                 case Project_Memento.QuestionError.QuestionEmpty:
                     Debug.LogError("Question is empty");
                     return "Please fill the question with text";
+                    break;
+
+                case Project_Memento.QuestionError.QuestionExistingAlready:
+                    Debug.LogError("Question is already existing");
+                    return "This question already existing";
                     break;
                 default:
                     return "No Exception";
@@ -251,7 +266,7 @@ namespace Project_Memento
             QuestionGlobalData questionGlobalData = DataManager.instance.GetQuestionGlobalData();
             QuestionData questionInstanceData = questionGlobalData.questionData[questionData.idQuestion];
 
-            if(questionInstanceData.tagQuestion==null)
+            if (questionInstanceData.tagQuestion == null)
                 questionInstanceData.tagQuestion = new string[5];
 
             if (questionInstanceData.tagQuantity == questionInstanceData.tagQuestion.Length)
@@ -285,7 +300,7 @@ namespace Project_Memento
             {
                 if (questionInstanceData.tagQuestion[i] == nameTag)
                 {
-                    List<string> tempArray = new List<string>( questionInstanceData.tagQuestion);
+                    List<string> tempArray = new List<string>(questionInstanceData.tagQuestion);
                     tempArray.Remove(questionInstanceData.tagQuestion[i]);
                     questionInstanceData.tagQuestion = tempArray.ToArray();
                     questionInstanceData.tagQuantity--;
@@ -294,13 +309,13 @@ namespace Project_Memento
                     SaveManager.SaveData();
                 }
             }
-            resultData.isSuccess= false;
+            resultData.isSuccess = false;
             resultData.textFeedback = "Tag wasnt find and remove";
 
         }
 
 
-    public static void UpdateQuestionDate(int idQuestion)
+        public static void UpdateQuestionDate(int idQuestion)
         {
 
             QuestionGlobalData questionGlobalData = DataManager.GetQuestionGlobaldata();
@@ -316,9 +331,9 @@ namespace Project_Memento
                 questionData.nextDateTest = questionData.dateInitialization;
                 questionData.nextDateTest = questionData.dateInitialization.AddDays(dayStep[questionData.questionStep]);
             }
-           
+
         }
-    
+
 
         public static void ResetQuestion(int idQuestion)
         {
@@ -415,7 +430,7 @@ namespace Project_Memento
         {
             EvaluationData evaluationData = new EvaluationData();
             List<QuestionData> questionDataList = new List<QuestionData>();
-            
+
             List<QuestionData> orderingList = new List<QuestionData>(questionGlobalData.questionData);
 
             orderingList[1].questionStep = 1;
@@ -433,7 +448,7 @@ namespace Project_Memento
                 TimeSpan refDayLimit = new TimeSpan(-3, 0, 0, 0);
                 if (result.Days < refDayLimit.Days)
                 {
-                    ResetQuestion(i);
+                    ResetQuestion(orderingList[i].id);
                 }
                 if (result.Days <= 0)
                 {
@@ -445,6 +460,57 @@ namespace Project_Memento
             evaluationData.questionArray = questionDataList.ToArray();
             evaluationData.questionQuantity = questionDataList.Count;
             return evaluationData;
+        }
+
+        public static void DeleteDuplicateQuestion()
+        {
+            QuestionGlobalData questionGlobalData = DataManager.instance.GetQuestionGlobalData();
+
+            for (int i = 0; i < questionGlobalData.questionQuantity-1; i++)
+            {
+                QuestionData data = questionGlobalData.questionData[i];
+                int id = FindDuplicateQuestion(data.questionText, i + 1);
+                if (id == -1) continue;
+
+                DeleteQuestion(id);
+                i--;
+            }
+        }
+
+        public static bool IsThisQuestionExisting(string questionText)
+        {
+            QuestionGlobalData questionGlobalData = DataManager.instance.GetQuestionGlobalData();
+
+            for (int i = 0; i < questionGlobalData.questionQuantity; i++)
+            {
+                QuestionData data = questionGlobalData.questionData[i];
+
+                if (data.questionText == questionText)
+                {
+                    return true;
+                }
+
+            }
+
+            return false;
+        }
+
+        private static int FindDuplicateQuestion(string questionText,int startingIndex)
+        {
+            QuestionGlobalData questionGlobalData = DataManager.instance.GetQuestionGlobalData();
+
+            for (int i = startingIndex; i < questionGlobalData.questionQuantity; i++)
+            {
+                QuestionData data = questionGlobalData.questionData[i];
+
+                if (data.questionText == questionText)
+                {
+                    return data.id;
+                }
+
+            }
+
+            return -1;
         }
     }
 }
